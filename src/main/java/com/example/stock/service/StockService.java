@@ -14,9 +14,6 @@ public class StockService {
 
     @Transactional
     public void decrease(Long id, Long quantity){
-        //stock 조회
-        //재고 감소
-        //갱신된 값을 저장
         Stock stock = stockRepository.findById(id).orElseThrow();
         stock.decrease(quantity);
 
