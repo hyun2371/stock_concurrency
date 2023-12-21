@@ -3,6 +3,7 @@ package com.example.stock.service;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.example.stock.domain.Stock;
+import com.example.stock.facade.OptimisticLockStockFacade;
 import com.example.stock.repository.StockRepository;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -12,12 +13,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-class StockServiceTest {
+class OptimisticLockStockServiceTest {
     @Autowired
-    private PessimisticLockStockService stockService;
+    private OptimisticLockStockFacade stockService;
 
     @Autowired
     private StockRepository stockRepository;
@@ -30,16 +30,6 @@ class StockServiceTest {
     @AfterEach
     public void after(){
         stockRepository.deleteAll();
-    }
-
-    @Test
-    void 재고감소(){
-        stockService.decrease(1L, 1L);
-
-        //100-1 = 99
-        Stock stock = stockRepository.findById(1L).orElseThrow();
-
-        assertEquals(99, stock.getQuantity());
     }
 
     @Test
@@ -57,7 +47,10 @@ class StockServiceTest {
             executorService.submit(() -> {
                 try {
                     stockService.decrease(1L, 1L);
-                } finally {
+                } catch (InterruptedException e){
+                    throw new RuntimeException(e);
+                }
+                finally {
                     latch.countDown(); //
                 }
             });
