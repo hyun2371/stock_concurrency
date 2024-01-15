@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.example.stock.domain.Stock;
 import com.example.stock.repository.StockRepository;
+import com.example.stock.transaction.StockSyncService;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 class StockServiceTest {
     @Autowired
-    private PessimisticLockStockService stockService;
+    private StockSyncService stockService;
 
     @Autowired
     private StockRepository stockRepository;
@@ -51,7 +52,7 @@ class StockServiceTest {
          */
         int threadCount = 100;
         ExecutorService executorService = Executors.newFixedThreadPool(32);
-        CountDownLatch latch = new CountDownLatch(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount); // 다른 thread에서 수행 중인 작업이 완료될 때까지 대기할 수 있도록 돕는 클래스
 
         for (int i = 0; i< threadCount; i++){
             executorService.submit(() -> {
