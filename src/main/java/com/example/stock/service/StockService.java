@@ -13,11 +13,10 @@ public class StockService {
 
     private final StockRepository stockRepository;
 
+    // 부모의 트랜잭션과 별도로 실행되어야 함
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void decrease(Long id, Long quantity){
         Stock stock = stockRepository.findById(id).orElseThrow();
         stock.decrease(quantity);
-
-        stockRepository.saveAndFlush(stock);
     }
 }
